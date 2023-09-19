@@ -1,15 +1,9 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import {
-  collection,
-  documentId,
   updateDoc,
-  addDoc,
   doc,
   getDoc,
-  getDocs,
-  setDoc,
 } from 'firebase/firestore';
 import styles from '../styles/Home.module.css'
 import { database } from '../firebaseConfig';
@@ -18,79 +12,37 @@ import {
   getAuth
 }from 'firebase/auth';
 export default function Home() {
-  const [ID, setID] = useState(null);
   const [ans, setans] = useState(null);
   const auth = getAuth();
   const router = useRouter();
   const user = auth.currentUser;
-  const databaseRef = doc(database,"teams","kavi");
-  const dataref=doc(database,user?.email,user?.uid);
-    /* const fetchFieldValue = async () => {
-        try {
-          const dataref=doc(database,user?.email,user?.uid);
-          const docRef = doc(database, 'answer', 'q1');
-          const docRef1 = doc(database, 'teams', 'kavi');
-
-          const docSnap = await getDoc(docRef);
-          const docSnap1 = await getDoc(dataref);
-          const docSnap2 = await getDoc(docRef1);
-          
-          if (docSnap.exists()) {
-            const fieldValue = docSnap.get('q1ans');
-            const fieldValue1 = docSnap1.get('ans1');
-            const fieldValue2 = docSnap2.get('score');
-
-            const mark = ()=>{
-              if (fieldValue1==fieldValue){
-                return 30;
+  const user_data=doc(database,user?.email,user?.uid);
+  const mainAns_data = doc(database, 'answer', 'q');
   
-              }
-              else {
-                if(fieldValue2==30){
-                return 30;
-             }
-             else{
-              return 0;
-             }
-            };
-            }
-
-            
-            const marks=mark();
-            console.log(fieldValue2);
-            updateDoc(databaseRef,{
-              score: Number(marks)
-            })
-          } else {
-            console.log('No such document');
-          }
-        } catch (error) {
-          console.error('Error fetching field value:', error);
-        }
-      }; */
+    
       const fetchFieldValue = async () => {
         try {
-          const dataref=doc(database,user?.email,user?.uid);
-          const docRef = doc(database, 'answer', 'q');
-          const docRef1 = doc(database, 'teams', 'kavi');
-
-          const docSnap = await getDoc(docRef);
-          const docSnap1 = await getDoc(dataref);
-          const docSnap2 = await getDoc(docRef1);
           
-          if (docSnap.exists()) {
-            const fieldValue = docSnap.get('mq1');
-            const fieldValue1 = docSnap1.get('ans1');
-            const fieldValue2 = docSnap2.get('q1');
-            //const fieldValue3 = docSnap2.get('q2');
+          const user_doc = await getDoc(user_data);
+          const mainAns_doc = await getDoc(mainAns_data);
+          const team_doc = await getDoc(team_data);
 
+          const teamname = user_doc.get('name');
+          
+          const team_data = doc(database,"teams",teamname);
+          console.log("hiii");
+          if (mainAns_doc.exists()) {
+            const mainAns = mainAns_doc.get('mq1');
+            const userAns = user_doc.get('ans1');
+            const teamMark = team_doc.get('q1');
+            
             const mark = ()=>{
-              if (fieldValue1==fieldValue){
+              if (userAns==mainAns){
                 return true;
-  
+                
               }
               else {
-                if(fieldValue2==true){
+                if(teamMark==true){
                   return true;
                }
                else{
@@ -98,35 +50,11 @@ export default function Home() {
                }
             };
             }
-
-            
-            //const marks=mark();
-            //console.log(fieldValue2);
-            
-            /* const  score=()=>{
-              if (fieldValue2==true &&fieldValue3==true){
-                return 60;
-              }
-              else{
-                if(fieldValue2==true||fieldValue3==true){
-                  return 30;
-                }
-                else{
-                  return 0;
-                }
-              }
-            } */
-            updateDoc(databaseRef,{
-             
+            updateDoc(team_data,{
               q1: mark()
-            })
-            /* updateDoc(databaseRef,{
-             
-              //q1: mark(),
-               score: Number(score())
-            }) */
+            }
+            )
             
-
           } else {
             console.log('No such document');
           }
@@ -135,27 +63,11 @@ export default function Home() {
         }
       };
 
-
-    /* const  score=()=>{
-
-      updateDoc(databaseRef,{
-        score: Number(1)
-        //q1: mark(),
-      })
-    } */
-/*       setDoc(databaseRef,{
-        score: Number(0),
-        q1 : false,
-        q2 : false
-      }) */
   const addData = () => {
-    //addDoc(doc(database,user.email,"WSL0RjxYHSz4jd1gxjFf"), {
-      updateDoc(dataref, { 
+      updateDoc(user_data, { 
         ans1: Number(ans)
     })
     fetchFieldValue()
-
-    //score()
       .then(() => {
         alert('Data Sent')
         router.push('/q2')
@@ -184,14 +96,12 @@ export default function Home() {
           value={ans}
           onChange={event => setans(event.target.value)}
         />
-    
-
         {(
           <button
             className={styles.button}
             onClick={addData}
           >
-            Submit
+            submit
           </button>
         )}
       </main>

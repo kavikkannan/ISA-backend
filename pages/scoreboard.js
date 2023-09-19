@@ -20,17 +20,13 @@ export default function Home() {
   const [ans, setans] = useState('');
   const auth = getAuth();
   const user = auth.currentUser;
-  //const databaseRef = collection(database,user?.email);
-  //const dataref=doc(database,user?.email,user?.uid)
   const updateData = () => {
-    //addDoc(doc(database,user.email,"WSL0RjxYHSz4jd1gxjFf"), {
       updateDoc(dataref, { 
         ans2: ans
     })
       .then(() => {
         alert('Data Sent')
         setans('')
-        //router.push('/q2')
       })
       .catch((err) => {
         console.error(err);

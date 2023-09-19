@@ -1,12 +1,8 @@
 import styles from '../styles/Home.module.css'
 import Head from 'next/head';
-import { app,database } from '../firebaseConfig';
 import { useEffect } from 'react';
 import {
     getAuth,
-    collection,
-    doc,
-    setDoc,
     createUserWithEmailAndPassword
 } from 'firebase/auth'
 import { useState } from 'react';
@@ -18,9 +14,7 @@ export default function Register() {
     const [password, setPassword] = useState('');
     const signUp = () => {
        createUserWithEmailAndPassword(auth, email, password)
-       
-        //createUserWithEmailAndPassword(auth,email,password).then(cred => {return collection(database,email).doc(database,cred.user.uid).set({name: 'hii'});})
-            .then((response) => {
+                .then((response) => {
                 console.log(response.user)
                 sessionStorage.setItem('Token', response.user.accessToken);
                 router.push('/login')
@@ -29,7 +23,6 @@ export default function Register() {
 
     useEffect(() => {
         let token = sessionStorage.getItem('Token')
-
         if(token){
             router.push('/login')
         }

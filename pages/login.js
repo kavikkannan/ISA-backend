@@ -1,6 +1,5 @@
 import styles from '../styles/Home.module.css'
 import Head from 'next/head';
-import { app } from '../firebaseConfig';
 import { useEffect } from 'react';
 import {
     getAuth,
@@ -8,9 +7,10 @@ import {
 } from 'firebase/auth'
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { app } from '../firebaseConfig';
 export default function Register() {
     const auth = getAuth();
-
+    const user = auth.currentUser;
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
