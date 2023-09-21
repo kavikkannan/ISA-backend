@@ -1,4 +1,4 @@
-import Head from 'next/head'
+/* import Head from 'next/head'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import {
@@ -54,6 +54,77 @@ export default function Home() {
         className={styles.button}
         onClick={checkValue}>get score</button>
        </main>
+    </div>
+  );
+}
+ */
+import { useEffect, useState } from 'react'
+import {
+  collection,
+  updateDoc,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+} from 'firebase/firestore';
+import styles from '../styles/Home.module.css'
+import { database } from '../firebaseConfig';
+import { useRouter } from 'next/router';
+import {
+  getAuth,
+}from 'firebase/auth';
+export default function q2() {
+  const [Mtcode, setMcode] = useState("");
+  const [teamlist,setteamlist]=useState([]);
+  const auth = getAuth();
+  const router = useRouter();
+  const user = auth.currentUser;
+  const teamref=collection(database,"teams")
+  const [email, setemail] = useState('');  // Initialize with an empty string
+  const [uid, setuid] = useState('');  // Initialize with an empty string
+
+    useEffect(() => {
+        const storedemail = sessionStorage.getItem('user.email');
+        const storeduid = sessionStorage.getItem('user.uid');
+        setemail(storedemail || '');
+        setuid(storeduid || '');
+    }, []);
+  //NEW TRY
+  let user_data;
+if (email && uid) {
+  user_data = doc(database, email, uid);
+} else {
+  // Handle the case where email or uid is empty
+  console.error('Email or UID is empty.');
+}
+  //NEW TRY
+  const getteamlist = async()=>{
+    try{
+    const data = await getDocs(teamref);
+    const filtereddata=data.docs.map((doc)=>({
+      ...doc.data(),
+      id:doc.id,
+    }));
+    setteamlist(filtereddata);
+    } catch(err){
+      console.error(err);
+    }
+  };
+  useEffect(()=>{
+    getteamlist();
+  },[]);
+  
+  return (
+    <div className={styles.container}>
+      <div>
+          {teamlist.map((team)=>(
+            <div>
+              <h1>{team.id}</h1>
+              <h1>score:{team.r1mark+team.r2mark+team.r3mark}</h1>
+              </div>))
+              
+          }
+        </div>
     </div>
   );
 }

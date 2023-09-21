@@ -14,16 +14,20 @@ export default function Register() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    
 
     const signUp = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then((response) => {
                 console.log(response.user)
-                sessionStorage.setItem('Token', response.user.accessToken);
+                sessionStorage.setItem('Token1', response.user.accessToken);
+                sessionStorage.setItem('user.email', user.email);
+                sessionStorage.setItem('user.uid', user.uid);
                 router.push('/home')
             })
-            .catch(err => {
+            .catch((err) => {
                 alert('Cannot Log in')
+                console.error(err);
             })
     }
     const register = () => {
@@ -32,10 +36,10 @@ export default function Register() {
       }
 
     useEffect(() => {
-        let token = sessionStorage.getItem('Token')
+        let token1 = sessionStorage.getItem('Token1')
 
-        if(token){
-            router.push('/login')
+        if(token1){
+            router.push('/home')
         }
     }, [])
 

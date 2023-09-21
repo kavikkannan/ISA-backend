@@ -16,24 +16,73 @@ export default function Home() {
   const auth = getAuth();
   const router = useRouter();
   const user = auth.currentUser;
-  const user_data=doc(database,user?.email,user?.uid);
+  const [email, setemail] = useState('');  // Initialize with an empty string
+  const [uid, setuid] = useState('');  // Initialize with an empty string
+
+  useEffect(() => {
+    const storedemail = sessionStorage.getItem('user.email');
+    const storeduid = sessionStorage.getItem('user.uid');
+    setemail(storedemail || '');
+    setuid(storeduid || '');
+}, []);
+
+//NEW TRY
+let user_data;
+if (email && uid) {
+user_data = doc(database, email, uid);
+} else {
+// Handle the case where email or uid is empty
+console.error('Email or UID is empty.');
+}
+//NEW TRY
+  //const user_data=doc(database,user?.email,user?.uid);
+  
   const mainAns_data = doc(database, 'answer', 'q');
   
-    
-      const fetchFieldValue = async () => {
+  const upmark = async() =>{
+    const user_doc = await getDoc(user_data);
+    const teamname = user_doc.get('name');
+    const team_data = doc(database,"teams",teamname);
+    const team_doc = await getDoc(team_data);
+    var count=0;
+    const q1 = team_doc.get("r3q1");
+    const q2 = team_doc.get("r3q2");
+    const q3 = team_doc.get("r3q3");
+    if(q1==true){
+      console.log("sdgfae");
+      count=count+1;
+    }
+    if(q2==true){
+      count=count+1;
+    }
+    if(q3==true){
+      count=count+1;
+    }
+    count=count*10;
+    console.log(count);
+    updateDoc(team_data,{
+      r3mark:Number(count)
+    })
+  }  
+
+      const fetchFieldValue = async (a) => {
         try {
+         // const user_data=doc(database,user?.email,user?.uid);
+
           const user_doc = await getDoc(user_data);
+          const teamname = user_doc.get('name');
+          const team_data = doc(database,"teams",teamname);
+
           const mainAns_doc = await getDoc(mainAns_data);
           const team_doc = await getDoc(team_data);
 
-          const teamname = user_doc.get('name');
           
-          const team_data = doc(database,"teams",teamname);
-          console.log("hiii");
+          
+          
           if (mainAns_doc.exists()) {
-            const mainAns = mainAns_doc.get('mq2');
-            const userAns = user_doc.get('ans2');
-            const teamMark = team_doc.get('q2');
+            const mainAns = mainAns_doc.get(a);
+            const userAns = user_doc.get(a);
+            const teamMark = team_doc.get(a);
             
             const mark = ()=>{
               if (userAns==mainAns){
@@ -50,10 +99,10 @@ export default function Home() {
             };
             }
             updateDoc(team_data,{
-              q2: mark()
+              [a]: mark()
             }
             )
-            
+            upmark();
           } else {
             console.log('No such document');
           }
@@ -62,18 +111,26 @@ export default function Home() {
         }
       };
 
-  const addData = () => {
-      updateDoc(user_data, { 
-        ans2: ans
+  const addData = (a) => {
+      updateDoc(doc(database,user.email,user.uid), { 
+        [a]: ans
     })
-    fetchFieldValue()
+    fetchFieldValue(a)
       .then(() => {
         alert('Data Sent')
-        router.push('/q1')
       })
       .catch((err) => {
         console.error(err);
       })
+    }
+    const next = (b) => {
+      router.push(b)
+    }
+    const logout = () => {
+      sessionStorage.removeItem('Token1')
+      sessionStorage.removeItem('user.email')
+      sessionStorage.removeItem('user.uid')
+      router.push('/login')
     }
   
   return (
@@ -85,26 +142,63 @@ export default function Home() {
       </Head>
       
       <main className={styles.main}>
-
-        <h1> tell me a joke </h1>
-
+        <div>
+          <button onClick={logout}>Log Out</button>
+        </div>
+        <h1> type h </h1>
         <input
           placeholder='enter your ans'
           className={styles.inputBox}
-          type="text"
-          value={ans}
-          onChange={event => setans(event.target.value)}
+          onChange={(e) => setans(e.target.value)}
         />
-    
-
-        {(
           <button
             className={styles.button}
-            onClick={addData}
+            onClick={() => addData('r3q1')}
+          >
+            Submit
+          </button> 
+
+        <h1> type i </h1>
+        <input
+          placeholder='enter your ans'
+          className={styles.inputBox}
+          onChange={(e) => setans(e.target.value)}
+        />
+          <button
+            className={styles.button}
+            onClick={() => addData('r3q2')}
           >
             Submit
           </button>
-        )}
+
+        <h1> type j </h1>
+        <input
+          placeholder='enter your ans'
+          className={styles.inputBox}
+          onChange={(e) => setans(e.target.value)}
+        />
+          <button
+            className={styles.button}
+            onClick={() => addData('r3q3')}
+          >
+            Submit
+          </button>
+
+          <hr />
+          <button
+            className={styles.button}
+            onClick={() =>next('/q1')}
+          >
+            round 1
+          </button>
+
+          <hr/>
+          <button
+            className={styles.button}
+            onClick={() => next('/scoreboard')}
+          >
+            round 2
+          </button>
       </main>
     </div>
   )

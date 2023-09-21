@@ -21,11 +21,11 @@ export default function Home() {
   let router = useRouter()
 
   useEffect(() => {
-    let token = sessionStorage.getItem('Token')
-    if (token) {
+    let token1 = sessionStorage.getItem('Token1')
+    if (token1) {
       getData()
     }
-    if (!token) {
+    if (!token1) {
       router.push('/register')
     }
   }, [])
@@ -36,8 +36,15 @@ export default function Home() {
       count: Number(MemberCount)
     })
     setDoc(doc(database,"teams",TeamName),{
-      q1:false,
-      q2:false 
+      r1mark:0,
+      r1q1:false,
+      r1q2:false,
+      r1q3:false,
+      r2mark:0,
+      r3mark:0,
+      r3q1:false,
+      r3q2:false,
+      r3q3:false
     })
       .then(() => {
         alert('Data Sent')
@@ -62,7 +69,9 @@ export default function Home() {
       })
   }
   const logout = () => {
-    sessionStorage.removeItem('Token')
+    sessionStorage.removeItem('Token1')
+    sessionStorage.removeItem('user.email')
+    sessionStorage.removeItem('user.uid')
     router.push('/login')
   }
   return (
